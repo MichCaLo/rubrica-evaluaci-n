@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rúbrica de Exposición</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: aplicación de una columna con pantallas (inicio → acceso → grupos/panel → rúbrica); barra de puntaje fija solo en la rúbrica */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --fg:#17211d; --muted:#5b6a64; --line:#d8e0dc;
+  --accent:#1d6b56; --accent-soft:#e2efe9; --focus:#2f8f73;
+  --l4:#1d6b56; --l3:#4f8a3a; --l2:#b7791f; --l1:#b4442f;
+  --l4s:#dcefe6; --l3s:#e6f0dc; --l2s:#f7ebd6; --l1s:#f6dfd9;
+  --font-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111816; --surface:#18221f; --fg:#e6eeea; --muted:#9db0a8; --line:#2c3a35;
+  --accent:#5cc4a2; --accent-soft:#1d332b; --focus:#7fd8ba;
+  --l4:#5cc4a2; --l3:#9ccc6e; --l2:#e3b25a; --l1:#ec8a74;
+  --l4s:#1c3a30; --l3s:#25351c; --l2s:#3b2f19; --l1s:#3d231d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111816; --surface:#18221f; --fg:#e6eeea; --muted:#9db0a8; --line:#2c3a35;
+  --accent:#5cc4a2; --accent-soft:#1d332b; --focus:#7fd8ba;
+  --l4:#5cc4a2; --l3:#9ccc6e; --l2:#e3b25a; --l1:#ec8a74;
+  --l4s:#1c3a30; --l3s:#25351c; --l2s:#3b2f19; --l1s:#3d231d; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto;padding-inline:16px;padding-block:24px 48px;display:flex;flex-direction:column;gap:24px}
+.wrap.con-barra{padding-block-end:150px}
+.vista{display:flex;flex-direction:column;gap:24px}
+.stack{display:flex;flex-direction:column;gap:10px}
+h1{font-family:var(--font-display);font-weight:800;font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-family:var(--font-display);font-weight:600;font-size:1.35rem;margin:0;text-wrap:balance}
+h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0;font-weight:700}
+.lead{margin:0;color:var(--muted);max-width:62ch}
+.eyebrow{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.hint{font-size:.88rem;color:var(--muted)}
+
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.topbar .marca{font-family:var(--font-display);font-weight:600}
+.topbar .quien{margin-left:auto;color:var(--muted);font-size:.92rem}
+.aviso{font-size:.9rem;background:var(--l2s);color:var(--fg);border:1px solid var(--l2);border-radius:6px;padding:10px 12px;margin:0}
+.aviso code{font-family:var(--font-mono);font-size:.85em}
+
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;display:flex;flex-direction:column;gap:20px}
+.sec-head{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.sec-num{font-family:var(--font-mono);font-weight:700;color:var(--accent);font-size:.85rem}
+.sec-head .tag{margin-left:auto;font-size:.8rem;color:var(--muted)}
+.encabezado{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.encabezado .stack{flex:1 1 320px;min-width:0}
+
+/* Inicio */
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.rol{font:inherit;color:var(--fg);text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:border-color .12s,transform .12s}
+.rol:hover{border-color:var(--accent);transform:translateY(-2px)}
+.rol .ico{width:44px;height:44px;border-radius:8px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.rol strong{font-family:var(--font-display);font-size:1.3rem;font-weight:600}
+.rol span{color:var(--muted)}
+.panel-login{max-width:440px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;display:flex;flex-direction:column;gap:18px}
+
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font-weight:600}
+.req{color:var(--l1)}
+input[type=text],input[type=password],input[type=number],select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%;min-width:0}
+input[readonly]{background:var(--surface);border-style:dashed;color:var(--muted)}
+input:focus-visible,select:focus-visible,button:focus-visible,.cell input:focus-visible+span,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.invalid{border-color:var(--l1)!important;box-shadow:0 0 0 1px var(--l1)}
+.error{color:var(--l1);font-size:.92rem;margin:0}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.row .field{flex:1 1 220px}
+
+.btn{font:inherit;font-weight:600;border-radius:6px;padding:10px 16px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--l1)}
+.btn.sm{padding:6px 12px;font-size:.9rem}
+.btn.icono{padding:6px 10px;font-size:.9rem;line-height:1}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.empty{color:var(--muted);font-size:.95rem;margin:0}
+.pill{font-size:.82rem;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.chip{align-self:flex-start;font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--l4s);color:var(--l4)}
+
+/* Panel evaluador */
+.progreso{display:flex;flex-direction:column;gap:6px;min-width:220px}
+.progreso small{color:var(--muted)}
+.barra{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.barra i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.grupos{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.grupo{font:inherit;color:var(--fg);text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-width:0}
+.grupo:hover{border-color:var(--accent)}
+.grupo strong{font-family:var(--font-display);font-weight:600;font-size:1.1rem}
+.grupo small{color:var(--muted);line-height:1.35}
+.grupo.hecho{border-color:var(--l4)}
+
+/* Cuadrícula */
+.grid-scroll{overflow-x:auto;margin-inline:-4px}
+table.grid{width:100%;border-collapse:collapse;min-width:620px}
+.grid th,.grid td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.grid thead th{font-size:.82rem;font-weight:600;color:var(--muted);text-align:center;line-height:1.25}
+.grid thead th b{display:block;font-family:var(--font-mono);font-size:1.05rem;color:var(--fg)}
+.grid thead th:first-child{text-align:left}
+.grid td.crit{width:46%}
+.crit strong{display:block}
+.crit small{color:var(--muted);font-size:.86rem;line-height:1.35;display:block;margin-top:2px}
+.grid tr.missing td.crit strong{color:var(--l1)}
+.cell{text-align:center}
+.cell label{display:inline-flex;cursor:pointer}
+.cell input{position:absolute;opacity:0;width:1px;height:1px}
+.cell span{min-width:40px;height:40px;padding:0 6px;border-radius:99px;border:2px solid var(--line);display:grid;place-items:center;font-family:var(--font-mono);font-weight:700;color:var(--muted);transition:background .12s,border-color .12s,color .12s}
+.cell label:hover span{border-color:var(--muted)}
+.cell input:checked+span.v4{background:var(--l4s);border-color:var(--l4);color:var(--l4)}
+.cell input:checked+span.v3{background:var(--l3s);border-color:var(--l3);color:var(--l3)}
+.cell input:checked+span.v2{background:var(--l2s);border-color:var(--l2);color:var(--l2)}
+.cell input:checked+span.v1{background:var(--l1s);border-color:var(--l1);color:var(--l1)}
+.subtotal{display:flex;justify-content:flex-end;gap:10px;align-items:baseline;font-size:.95rem;color:var(--muted)}
+.subtotal b{font-family:var(--font-mono);color:var(--fg);font-size:1.1rem}
+.expositor{border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:14px;background:var(--bg)}
+
+/* Barra de puntaje */
+.scorebar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
+.scorebar-in{max-width:900px;margin:0 auto;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.metric{display:flex;flex-direction:column;line-height:1.15}
+.metric span{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.metric b{font-family:var(--font-mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.scorebar .actions{margin-left:auto}
+
+/* Panel admin */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.stat span{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.stat b{font-family:var(--font-mono);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{font:inherit;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;color:var(--muted);cursor:pointer;margin-bottom:-1px;white-space:nowrap}
+.tab[aria-selected=true]{color:var(--fg);border-bottom-color:var(--accent)}
+.tbl-scroll{overflow-x:auto}
+table.datos{width:100%;border-collapse:collapse;font-size:.95rem}
+.datos th{text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.datos td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.datos td.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.datos small{color:var(--muted)}
+.filtro{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filtro select{width:auto}
+.lista{list-style:none;margin:0;padding:0}
+.lista li{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)}
+.lista .who{flex:1 1 220px;min-width:0}
+.lista .who small{display:block;color:var(--muted)}
+.lista li .row{flex:1 1 100%}
+details.eval{border-bottom:1px solid var(--line);padding:10px 0}
+details.eval summary{cursor:pointer;display:flex;gap:12px;align-items:center;flex-wrap:wrap;list-style:none}
+details.eval summary::-webkit-details-marker{display:none}
+details.eval summary .who{flex:1 1 220px;min-width:0}
+details.eval summary .who small{display:block;color:var(--muted)}
+details.eval .n{font-family:var(--font-mono);font-weight:700}
+details.eval pre{white-space:pre-wrap;font-family:var(--font-mono);font-size:.82rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:12px;margin:10px 0}
+
+/* Editor de rúbrica */
+.ed-bloque{display:flex;flex-direction:column;gap:10px}
+.fila-escala{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:8px;align-items:center}
+.fila-crit{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.fila-crit .num{font-family:var(--font-mono);font-weight:700;color:var(--accent);padding-top:10px}
+.fila-crit .campos{display:flex;flex-direction:column;gap:8px;min-width:0}
+.fila-crit .mini{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.fila-crit input,.fila-escala input{background:var(--surface)}
+.cols-head{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:8px;font-size:.78rem;color:var(--muted)}
+.barra-guardar{position:sticky;bottom:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;z-index:2}
+.barra-guardar .estado{margin-right:auto;font-size:.92rem;color:var(--muted)}
+.inline-confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:6px;font-weight:600;z-index:10;max-width:calc(100% - 32px)}
+@media (max-width:560px){section.card{padding:18px}.fila-crit{grid-template-columns:minmax(0,1fr)}.fila-crit .num{padding-top:0}.fila-crit .mini{justify-content:flex-start}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app">
+  <div class="topbar">
+    <span class="marca">Rúbrica de Exposición</span>
+    <span class="quien" id="quien" hidden></span>
+    <button class="btn ghost sm" id="salir" type="button" hidden>Salir</button>
+  </div>
+  <p class="aviso" id="modoDemo" hidden><strong>Modo demostración:</strong> Firebase aún no está configurado y los datos se guardan solo en este navegador. Contraseña de administrador de prueba: <code>admin123</code>.</p>
+
+  <!-- INICIO -->
+  <div id="vInicio" class="vista">
+    <div class="stack">
+      <div class="eyebrow">Instrumento de evaluación</div>
+      <h1>¿Cómo desea ingresar?</h1>
+      <p class="lead">Los evaluadores califican a los equipos con la rúbrica. El administrador registra los grupos, ajusta la rúbrica y consulta los resultados.</p>
+    </div>
+    <div class="roles">
+      <button class="rol" type="button" id="irEvaluador">
+        <span class="ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></span>
+        <strong>Evaluador</strong>
+        <span>Ingrese su nombre completo y elija el grupo que va a calificar.</span>
+      </button>
+      <button class="rol" type="button" id="irAdmin">
+        <span class="ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+        <strong>Administrador</strong>
+        <span>Requiere contraseña. Gestione grupos, rúbrica y calificaciones.</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- LOGIN ADMIN -->
+  <form id="vAdminLogin" class="panel-login" hidden novalidate>
+    <h2>Acceso de administrador</h2>
+    <div class="field">
+      <label for="adminPass">Contraseña <span class="req">*</span></label>
+      <input type="password" id="adminPass" autocomplete="current-password">
+    </div>
+    <p class="error" id="adminErr" hidden></p>
+    <div class="actions">
+      <button class="btn primary" type="submit" id="adminEntrar">Entrar</button>
+      <button class="btn ghost" type="button" data-volver>Volver</button>
+    </div>
+  </form>
+
+  <!-- LOGIN EVALUADOR -->
+  <form id="vEvalLogin" class="panel-login" hidden novalidate>
+    <h2>Datos del evaluador</h2>
+    <div class="field">
+      <label for="evalNombre">Nombre completo <span class="req">*</span></label>
+      <input type="text" id="evalNombre" autocomplete="name">
+    </div>
+    <p class="error" id="evalErr" hidden></p>
+    <div class="actions">
+      <button class="btn primary" type="submit" id="evalEntrar">Continuar</button>
+      <button class="btn ghost" type="button" data-volver>Volver</button>
+    </div>
+  </form>
+
+  <!-- PANEL EVALUADOR: GRUPOS -->
+  <div id="vGrupos" class="vista" hidden>
+    <div class="encabezado">
+      <div class="stack">
+        <div class="eyebrow">Panel del evaluador</div>
+        <h1>Seleccione un grupo</h1>
+        <p class="lead">Elija el equipo que va a evaluar. Los grupos que ya evaluó en este dispositivo aparecen marcados.</p>
+      </div>
+      <div class="progreso"><small id="progTxt">0 de 0 grupos evaluados</small><div class="barra"><i id="progBar"></i></div></div>
+    </div>
+    <div class="grupos" id="listaGrupos"></div>
+    <p class="empty" id="sinGrupos" hidden>Todavía no hay grupos registrados. Pida al administrador que los agregue.</p>
+  </div>
+
+  <!-- RÚBRICA -->
+  <div id="vRubrica" class="vista" hidden>
+    <div class="actions"><button class="btn ghost sm" type="button" id="volverGrupos">← Volver a grupos</button></div>
+    <p class="aviso" id="avisoEdicion" hidden><strong>Editando como administrador.</strong> Cambie lo necesario y pulse “Guardar cambios”. La evaluación conserva su evaluador y fecha original, y se recalcula con la rúbrica actual.</p>
+
+    <section class="card" aria-labelledby="s1">
+      <div class="sec-head"><span class="sec-num">01</span><h2 id="s1">Datos Generales</h2></div>
+      <div class="row">
+        <div class="field"><label for="rEquipo">Número o Nombre del Equipo Evaluado</label><input type="text" id="rEquipo" readonly></div>
+        <div class="field"><label for="rEvaluador">Evaluador</label><input type="text" id="rEvaluador" readonly></div>
+      </div>
+      <div class="field">
+        <label for="rTema">Tema de la Exposición <span class="req">*</span></label>
+        <input type="text" id="rTema" autocomplete="off">
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="s2">
+      <div class="sec-head"><span class="sec-num">02</span><h2 id="s2">Evaluación Grupal</h2><span class="tag" id="tagGrupal"></span></div>
+      <div class="grid-scroll"><table class="grid" id="gridGrupal"></table></div>
+      <div class="subtotal">Subtotal grupal <b id="subGrupal">0</b></div>
+    </section>
+
+    <section class="card" aria-labelledby="s3" id="secIndiv">
+      <div class="sec-head"><span class="sec-num">03</span><h2 id="s3">Criterios Individuales</h2><span class="tag" id="tagIndiv"></span></div>
+      <div id="expositores" class="vista" style="gap:16px"></div>
+      <p class="empty" id="noExpo">No hay expositores evaluados individualmente.</p>
+      <div class="actions"><button class="btn" id="addExpo" type="button">Agregar expositor</button></div>
+    </section>
+  </div>
+
+  <!-- PANEL ADMINISTRADOR -->
+  <div id="vAdmin" class="vista" hidden>
+    <div class="encabezado">
+      <div class="stack"><div class="eyebrow">Panel del administrador</div><h1>Resultados y configuración</h1></div>
+      <button class="btn sm" id="refrescar" type="button">Actualizar datos</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>Grupos</span><b id="stGrupos">0</b></div>
+      <div class="stat"><span>Evaluaciones</span><b id="stEvals">0</b></div>
+      <div class="stat"><span>Evaluadores</span><b id="stEvaluadores">0</b></div>
+      <div class="stat"><span>Nota promedio</span><b id="stProm">—</b></div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" type="button" data-panel="panelRes" aria-selected="true">Resultados</button>
+      <button class="tab" role="tab" type="button" data-panel="panelGru" aria-selected="false">Grupos</button>
+      <button class="tab" role="tab" type="button" data-panel="panelRub" aria-selected="false">Rúbrica</button>
+    </div>
+
+    <!-- Resultados -->
+    <div id="panelRes" class="vista">
+      <section class="card">
+        <div class="sec-head"><h2>Promedio por grupo</h2>
+          <div class="actions" style="margin-left:auto"><button class="btn sm" id="copiarCsv" type="button">Copiar CSV</button></div>
+        </div>
+        <div class="tbl-scroll"><table class="datos" id="tablaResumen"></table></div>
+      </section>
+      <section class="card">
+        <div class="sec-head"><h2>Evaluaciones recibidas</h2><span class="tag" id="totalEvals"></span></div>
+        <div class="filtro"><label for="filtroGrupo">Mostrar</label><select id="filtroGrupo"><option value="">Todos los grupos</option></select></div>
+        <div id="listaEvals"></div>
+      </section>
+    </div>
+
+    <!-- Grupos -->
+    <div id="panelGru" class="vista" hidden>
+      <section class="card">
+        <h2>Agregar grupo</h2>
+        <form class="row" id="formGrupo" novalidate>
+          <div class="field"><label for="gNombre">Número o nombre del equipo <span class="req">*</span></label><input type="text" id="gNombre" autocomplete="off" placeholder="Equipo 5"></div>
+          <div class="field"><label for="gTema">Tema de la exposición</label><input type="text" id="gTema" autocomplete="off"></div>
+          <button class="btn primary" type="submit" id="gGuardar">Agregar</button>
+        </form>
+      </section>
+      <section class="card">
+        <h2>Grupos registrados</h2>
+        <ul class="lista" id="adminGrupos"></ul>
+        <p class="empty" id="adminSinGrupos" hidden>No hay grupos registrados.</p>
+      </section>
+    </div>
+
+    <!-- Rúbrica -->
+    <div id="panelRub" class="vista" hidden>
+      <p class="aviso">Los cambios aplican a las evaluaciones que se envíen después de guardar. Las evaluaciones ya recibidas conservan su nota, salvo que las edite.</p>
+      <section class="card">
+        <h2>Calificación</h2>
+        <div class="row">
+          <div class="field"><label for="rbNotaMax">Nota máxima</label><input type="number" id="rbNotaMax" min="1" step="1"></div>
+          <div class="field"><label for="rbPeso">Peso de la evaluación grupal (%)</label><input type="number" id="rbPeso" min="0" max="100" step="5"><span class="hint" id="rbPesoHint"></span></div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="sec-head"><h2>Evaluación grupal</h2><span class="tag" id="rbMaxG"></span></div>
+        <div class="ed-bloque">
+          <h3>Niveles de la escala</h3>
+          <div class="cols-head"><span>Puntos</span><span>Nombre del nivel</span><span></span></div>
+          <div id="edEscG" class="ed-bloque"></div>
+          <div class="actions"><button class="btn sm" type="button" data-add="edEscG">Agregar nivel</button></div>
+        </div>
+        <div class="ed-bloque">
+          <h3>Criterios</h3>
+          <div id="edCritG" class="ed-bloque"></div>
+          <div class="actions"><button class="btn sm" type="button" data-add="edCritG">Agregar criterio</button></div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="sec-head"><h2>Criterios individuales</h2><span class="tag" id="rbMaxI"></span></div>
+        <p class="hint" style="margin:0">Si deja esta sección sin criterios, la evaluación individual desaparece de la rúbrica y la nota se calcula solo con la parte grupal.</p>
+        <div class="ed-bloque">
+          <h3>Niveles de la escala</h3>
+          <div class="cols-head"><span>Puntos</span><span>Nombre del nivel</span><span></span></div>
+          <div id="edEscI" class="ed-bloque"></div>
+          <div class="actions"><button class="btn sm" type="button" data-add="edEscI">Agregar nivel</button></div>
+        </div>
+        <div class="ed-bloque">
+          <h3>Criterios</h3>
+          <div id="edCritI" class="ed-bloque"></div>
+          <div class="actions"><button class="btn sm" type="button" data-add="edCritI">Agregar criterio</button></div>
+        </div>
+      </section>
+      <div class="barra-guardar">
+        <span class="estado" id="rbEstado">Sin cambios</span>
+        <span class="inline-confirm" id="rbRestaurarBox"><button class="btn ghost sm" type="button" id="rbRestaurar">Restaurar predeterminada</button></span>
+        <button class="btn sm" type="button" id="rbDescartar">Descartar cambios</button>
+        <button class="btn primary" type="button" id="rbGuardar">Guardar rúbrica</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="scorebar" id="scorebar" hidden>
+  <div class="scorebar-in">
+    <div class="metric"><span>Grupal</span><b id="mGrupal">0</b></div>
+    <div class="metric" id="mIndivBox"><span>Individual prom.</span><b id="mIndiv">—</b></div>
+    <div class="metric"><span>Nota final</span><b id="mFinal">0</b></div>
+    <span class="pill" id="mNivel">Sin calificar</span>
+    <div class="actions"><button class="btn primary" id="enviar" type="button">Enviar evaluación</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCEpou1jtgW5TVUPsa2nsCG05h4zhsP3t8",
+  authDomain: "rubrica-evaluacion-ba79d.firebaseapp.com",
+  projectId: "rubrica-evaluacion-ba79d",
+  storageBucket: "rubrica-evaluacion-ba79d.firebasestorage.app",
+  messagingSenderId: "796168448898",
+  appId: "1:796168448898:web:75b48e60d634d7129a7d9b",
+  measurementId: "G-09H0WW6K7L"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+const ADMIN_EMAIL = "admin@tudominio.com";
+const FIREBASE_VERSION = "10.12.2";
+
+const DEMO = firebaseConfig.apiKey === "TU_API_KEY";
+const DEMO_PASS = "admin123";
+
+/* ===================== RÚBRICA PREDETERMINADA =====================
+   El administrador puede cambiarla desde la pestaña "Rúbrica";
+   se guarda en Firestore en el documento config/rubrica. */
+const RUBRICA_BASE = {
+  notaMaxima: 10,
+  pesoGrupal: 70, // % de la nota; el resto corresponde al promedio individual
+  escalaGrupal: [{valor:4,etiqueta:"Excelente"},{valor:3,etiqueta:"Bueno"},{valor:2,etiqueta:"En Desarrollo"},{valor:1,etiqueta:"Deficiente"}],
+  critGrupal: [
+    {nombre:"Coordinación y Cohesión del Equipo", desc:"Transiciones fluidas entre expositores, equidad en la participación y seguimiento lógico de la presentación."},
+    {nombre:"Dominio del Tema y Rigor Académico", desc:"Manejo profundo de los conceptos, respaldo con fuentes confiables y precisión conceptual."},
+    {nombre:"Calidad de las Respuestas", desc:"Capacidad para responder preguntas con coherencia, solidez y colaboración de los integrantes."},
+    {nombre:"Calidad del Material de Apoyo Visual", desc:"Diapositivas/recursos claros, con balance adecuado entre texto e imagen, sin sobrecarga informativa."},
+    {nombre:"Gestión del Tiempo", desc:"Ajuste estricto al tiempo límite asignado sin precipitar el final ni quedarse cortos."}
+  ],
+  escalaIndiv: [{valor:4,etiqueta:"Sobresaliente"},{valor:3,etiqueta:"Adecuado"},{valor:2,etiqueta:"Regular"},{valor:1,etiqueta:"Insuficiente"}],
+  critIndiv: [
+    {nombre:"Dominio Individual del Contenido", desc:"Explica su parte con seguridad, sin depender de leer las diapositivas."},
+    {nombre:"Expresión Oral", desc:"Voz clara y audible, vocabulario adecuado y ritmo apropiado."},
+    {nombre:"Lenguaje Corporal y Contacto Visual", desc:"Postura, gestos y mirada dirigida al público."},
+    {nombre:"Interacción con el Público", desc:"Mantiene la atención y responde con pertinencia cuando se le pregunta."}
+  ]
+};
+const copia = o => JSON.parse(JSON.stringify(o));
+let R = copia(RUBRICA_BASE);
+
+function normalizar(r){
+  const b = copia(RUBRICA_BASE);
+  if (!r) return b;
+  const ordenar = esc => [...esc].sort((x,y)=>y.valor-x.valor);
+  return {
+    notaMaxima: +r.notaMaxima > 0 ? +r.notaMaxima : b.notaMaxima,
+    pesoGrupal: r.pesoGrupal >= 0 && r.pesoGrupal <= 100 ? +r.pesoGrupal : b.pesoGrupal,
+    escalaGrupal: ordenar(Array.isArray(r.escalaGrupal) && r.escalaGrupal.length >= 2 ? r.escalaGrupal : b.escalaGrupal),
+    critGrupal: Array.isArray(r.critGrupal) && r.critGrupal.length ? r.critGrupal : b.critGrupal,
+    escalaIndiv: ordenar(Array.isArray(r.escalaIndiv) && r.escalaIndiv.length >= 2 ? r.escalaIndiv : b.escalaIndiv),
+    critIndiv: Array.isArray(r.critIndiv) ? r.critIndiv : b.critIndiv
+  };
+}
+const maxEsc = esc => Math.max(...esc.map(e=>e.valor));
+const minEsc = esc => Math.min(...esc.map(e=>e.valor));
+const maxGrupal = () => maxEsc(R.escalaGrupal) * R.critGrupal.length;
+const maxIndiv = () => R.critIndiv.length ? maxEsc(R.escalaIndiv) * R.critIndiv.length : 0;
+// Color del nivel según su posición en la escala (más alto = verde, más bajo = rojo)
+function claseNivel(v, esc){ const mx = maxEsc(esc), mn = minEsc(esc); return "v" + (mx===mn ? 4 : Math.max(1, Math.min(4, Math.round(1 + 3*(v-mn)/(mx-mn))))); }
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sum = a => a.reduce((s,x)=>s+(x||0),0);
+const fmt = n => (Math.round(n*100)/100).toLocaleString("es-HN", {maximumFractionDigits:2});
+const porNombre = (a,b) => String(a.nombre).localeCompare(String(b.nombre),"es",{numeric:true});
+
+/* ===================== DATOS (Firebase o demo) ===================== */
+let api;
+async function iniciarBackend(){
+  if (DEMO){ api = apiDemo(); $("modoDemo").hidden = false; return; }
+  const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
+  const [{initializeApp}, A, F] = await Promise.all([
+    import(base+"firebase-app.js"), import(base+"firebase-auth.js"), import(base+"firebase-firestore.js")
+  ]);
+  const app = initializeApp(FIREBASE_CONFIG);
+  const auth = A.getAuth(app), db = F.getFirestore(app);
+  const fecha = v => v?.toDate ? v.toDate().toISOString() : v;
+  const lista = snap => snap.docs.map(d => { const x = d.data(); return {id:d.id, ...x, fecha: fecha(x.fecha), editado: fecha(x.editado)}; });
+  api = {
+    loginAdmin: pass => A.signInWithEmailAndPassword(auth, ADMIN_EMAIL, pass),
+    loginEvaluador: async () => { if (auth.currentUser && !auth.currentUser.isAnonymous) await A.signOut(auth); if (!auth.currentUser) await A.signInAnonymously(auth); },
+    salir: () => A.signOut(auth),
+    leerRubrica: async () => { const s = await F.getDoc(F.doc(db,"config","rubrica")); return s.exists() ? s.data() : null; },
+    guardarRubrica: r => F.setDoc(F.doc(db,"config","rubrica"), {...r, actualizado: F.serverTimestamp()}),
+    grupos: async () => lista(await F.getDocs(F.collection(db,"grupos"))).sort(porNombre),
+    agregarGrupo: g => F.addDoc(F.collection(db,"grupos"), {...g, creado: F.serverTimestamp()}),
+    actualizarGrupo: (id, g) => F.updateDoc(F.doc(db,"grupos",id), g),
+    borrarGrupo: id => F.deleteDoc(F.doc(db,"grupos",id)),
+    enviarEval: e => F.addDoc(F.collection(db,"evaluaciones"), {...e, fecha: F.serverTimestamp()}),
+    actualizarEval: (id, e) => F.updateDoc(F.doc(db,"evaluaciones",id), {...e, editado: F.serverTimestamp()}),
+    evaluaciones: async () => lista(await F.getDocs(F.query(F.collection(db,"evaluaciones"), F.orderBy("fecha","desc")))),
+    borrarEval: id => F.deleteDoc(F.doc(db,"evaluaciones",id))
+  };
+}
+
+function apiDemo(){
+  const mem = {}, P = "rubrica-demo3-";
+  const get = k => { try{ const v = localStorage.getItem(P+k); if (v) return JSON.parse(v); }catch{} return mem[k]; };
+  const set = (k,v) => { mem[k]=v; try{ localStorage.setItem(P+k, JSON.stringify(v)); }catch{} };
+  const uid = () => Math.random().toString(36).slice(2,10);
+  const wait = () => new Promise(r=>setTimeout(r,150));
+  if (!get("grupos")) set("grupos", [
+    {id:"g1",nombre:"Equipo 1",tema:"Energías renovables en Centroamérica"},
+    {id:"g2",nombre:"Equipo 2",tema:"Inteligencia artificial en la educación"},
+    {id:"g3",nombre:"Equipo 3",tema:"Gestión del agua en zonas urbanas"},
+    {id:"g4",nombre:"Equipo 4",tema:"Economía circular y reciclaje"}
+  ]);
+  if (!get("evals")) set("evals", [{id:"e1",evaluador:"Lic. Rosa Martínez (ejemplo)",grupoId:"g1",grupo:"Equipo 1",tema:"Energías renovables en Centroamérica",
+    critGrupal:RUBRICA_BASE.critGrupal.map(c=>c.nombre),grupal:[4,3,3,4,2],gTotal:16,gMax:20,
+    critIndiv:RUBRICA_BASE.critIndiv.map(c=>c.nombre),expositores:[{nombre:"María López",valores:[4,4,3,4],total:15}],iMax:16,iProm:15,
+    notaMaxima:10,pesoGrupal:70,final:8.41,fecha:new Date().toISOString()}]);
+  return {
+    loginAdmin: async p => { await wait(); if (p !== DEMO_PASS) throw {code:"auth/invalid-credential"}; },
+    loginEvaluador: async () => {}, salir: async () => {},
+    leerRubrica: async () => get("rubrica") || null,
+    guardarRubrica: async r => { await wait(); set("rubrica", r); },
+    grupos: async () => [...get("grupos")].sort(porNombre),
+    agregarGrupo: async g => set("grupos", [...get("grupos"), {id:uid(), ...g}]),
+    actualizarGrupo: async (id, g) => set("grupos", get("grupos").map(x => x.id===id ? {...x, ...g} : x)),
+    borrarGrupo: async id => set("grupos", get("grupos").filter(x=>x.id!==id)),
+    enviarEval: async e => { await wait(); set("evals", [{id:uid(), ...e, fecha:new Date().toISOString()}, ...get("evals")]); },
+    actualizarEval: async (id, e) => { await wait(); set("evals", get("evals").map(x => x.id===id ? {...x, ...e, editado:new Date().toISOString()} : x)); },
+    evaluaciones: async () => get("evals"),
+    borrarEval: async id => set("evals", get("evals").filter(x=>x.id!==id))
+  };
+}
+
+function mensajeError(e){
+  const c = e?.code || "";
+  if (/wrong-password|invalid-credential|invalid-login|user-not-found/.test(c)) return "Contraseña incorrecta. Verifique e intente de nuevo.";
+  if (/too-many-requests/.test(c)) return "Demasiados intentos. Espere unos minutos e intente de nuevo.";
+  if (/permission-denied/.test(c)) return "No tiene permiso para esta acción. Revise las reglas de Firestore.";
+  if (/admin-restricted-operation|operation-not-allowed/.test(c)) return "Active el acceso anónimo en Firebase Authentication.";
+  if (/network|unavailable/.test(c)) return "Sin conexión con Firebase. Revise su internet.";
+  return "Ocurrió un error: " + (e?.message || c || "desconocido");
+}
+
+/* ===================== NAVEGACIÓN ===================== */
+const VISTAS = ["vInicio","vAdminLogin","vEvalLogin","vGrupos","vRubrica","vAdmin"];
+let sesion = {rol:null, nombre:""};
+function mostrar(v){
+  VISTAS.forEach(id => $(id).hidden = id !== v);
+  $("scorebar").hidden = v !== "vRubrica";
+  $("app").classList.toggle("con-barra", v === "vRubrica");
+  $("salir").hidden = !sesion.rol;
+  $("quien").hidden = !sesion.rol;
+  $("quien").textContent = sesion.rol === "admin" ? "Administrador" : sesion.rol ? "Evaluador: " + sesion.nombre : "";
+  window.scrollTo({top:0});
+}
+let tt; function toast(m){ const t=$("toast"); t.textContent=m; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true,3200); }
+function cargando(btn, on, txt){ btn.disabled = on; if (on){ btn.dataset.txt = btn.textContent; btn.textContent = txt; } else if (btn.dataset.txt) btn.textContent = btn.dataset.txt; }
+async function cargarRubrica(){ R = normalizar(await api.leerRubrica()); }
+
+$("irAdmin").onclick = () => { $("adminErr").hidden = true; $("adminPass").value = ""; mostrar("vAdminLogin"); $("adminPass").focus(); };
+$("irEvaluador").onclick = () => { $("evalErr").hidden = true; mostrar("vEvalLogin"); $("evalNombre").focus(); };
+document.querySelectorAll("[data-volver]").forEach(b => b.onclick = () => mostrar("vInicio"));
+$("salir").onclick = async () => { try{ await api.salir(); }catch{} sesion = {rol:null,nombre:""}; edicion = null; mostrar("vInicio"); };
+
+$("vAdminLogin").onsubmit = async e => {
+  e.preventDefault();
+  const pass = $("adminPass").value;
+  if (!pass){ $("adminErr").textContent = "Escriba la contraseña."; $("adminErr").hidden = false; return; }
+  cargando($("adminEntrar"), true, "Verificando…");
+  try{
+    await api.loginAdmin(pass); await cargarRubrica();
+    sesion = {rol:"admin", nombre:"Administrador"};
+    pestana("panelRes"); mostrar("vAdmin"); await cargarAdmin(); pintarEditor(R);
+  }
+  catch(err){ $("adminErr").textContent = mensajeError(err); $("adminErr").hidden = false; }
+  finally{ cargando($("adminEntrar"), false); }
+};
+
+$("vEvalLogin").onsubmit = async e => {
+  e.preventDefault();
+  const nombre = $("evalNombre").value.trim().replace(/\s+/g," ");
+  if (nombre.split(" ").length < 2){ $("evalErr").textContent = "Escriba su nombre completo (nombre y apellido)."; $("evalErr").hidden = false; $("evalNombre").classList.add("invalid"); return; }
+  $("evalNombre").classList.remove("invalid");
+  cargando($("evalEntrar"), true, "Ingresando…");
+  try{ await api.loginEvaluador(); await cargarRubrica(); sesion = {rol:"evaluador", nombre}; await cargarGrupos(); mostrar("vGrupos"); }
+  catch(err){ $("evalErr").textContent = mensajeError(err); $("evalErr").hidden = false; }
+  finally{ cargando($("evalEntrar"), false); }
+};
+
+/* ===================== EVALUADOR: GRUPOS ===================== */
+const claveHechos = () => "rubrica-evaluados-" + sesion.nombre.toLowerCase();
+function hechos(){ try{ return JSON.parse(localStorage.getItem(claveHechos())) || []; }catch{ return []; } }
+function marcarHecho(id){ try{ localStorage.setItem(claveHechos(), JSON.stringify([...new Set([...hechos(), id])])); }catch{} }
+
+let grupos = [];
+async function cargarGrupos(){
+  grupos = await api.grupos();
+  const h = hechos(), n = grupos.filter(g => h.includes(g.id)).length;
+  $("progTxt").textContent = `${n} de ${grupos.length} grupos evaluados`;
+  $("progBar").style.width = grupos.length ? (n/grupos.length*100) + "%" : "0";
+  $("sinGrupos").hidden = grupos.length > 0;
+  $("listaGrupos").innerHTML = grupos.map(g => `<button class="grupo ${h.includes(g.id)?"hecho":""}" type="button" data-g="${esc(g.id)}">
+      ${h.includes(g.id) ? '<span class="chip">Evaluado</span>' : ""}
+      <strong>${esc(g.nombre)}</strong><small>${esc(g.tema || "Tema por definir")}</small></button>`).join("");
+  $("listaGrupos").querySelectorAll("[data-g]").forEach(b => b.onclick = () => abrirRubrica(grupos.find(g=>g.id===b.dataset.g)));
+}
+
+/* ===================== RÚBRICA (formulario) ===================== */
+let grupoActual = null, expoCount = 0, edicion = null;
+
+function construirGrid(table, prefijo, criterios, escala, valores = []){
+  table.innerHTML = "<thead><tr><th scope='col'>Criterio</th>" + escala.map(e=>`<th scope='col'><b>${fmt(e.valor)}</b>${esc(e.etiqueta)}</th>`).join("") + "</tr></thead><tbody>" +
+    criterios.map((c,i)=>{ const name = `${prefijo}-${i}`;
+      return `<tr data-row="${name}"><td class="crit"><strong>${i+1}. ${esc(c.nombre)}</strong>${c.desc ? `<small>${esc(c.desc)}</small>` : ""}</td>` +
+        escala.map(e=>`<td class="cell"><label title="${fmt(e.valor)} - ${esc(e.etiqueta)}"><input type="radio" name="${name}" value="${e.valor}" aria-label="${esc(c.nombre)}: ${fmt(e.valor)} - ${esc(e.etiqueta)}" ${valores[i]===e.valor ? "checked" : ""}><span class="${claseNivel(e.valor, escala)}">${fmt(e.valor)}</span></label></td>`).join("") + "</tr>";
+    }).join("") + "</tbody>";
+}
+function leerGrid(prefijo, n){ const out=[]; for (let i=0;i<n;i++){ const c=document.querySelector(`input[name="${prefijo}-${i}"]:checked`); out.push(c ? +c.value : null); } return out; }
+// Recupera valores guardados emparejando por nombre de criterio (por si la rúbrica cambió)
+function valoresPrevios(nombres, valores, criterios){
+  if (!valores) return [];
+  if (!nombres) return criterios.map((c,i) => valores[i] ?? null);
+  return criterios.map(c => { const i = nombres.indexOf(c.nombre); return i >= 0 ? valores[i] : null; });
+}
+
+function abrirRubrica(g, ev = null){
+  grupoActual = g; edicion = ev;
+  $("rEquipo").value = g.nombre;
+  $("rEvaluador").value = ev ? ev.evaluador : sesion.nombre;
+  $("rTema").value = ev ? (ev.tema || "") : (g.tema || "");
+  $("tagGrupal").textContent = `${R.critGrupal.length} criterios · máximo ${fmt(maxGrupal())} puntos`;
+  $("tagIndiv").textContent = `Opcional por expositor · máximo ${fmt(maxIndiv())} puntos`;
+  construirGrid($("gridGrupal"), "grp", R.critGrupal, R.escalaGrupal, valoresPrevios(ev?.critGrupal, ev?.grupal, R.critGrupal));
+  $("expositores").innerHTML = "";
+  $("secIndiv").hidden = !R.critIndiv.length;
+  $("mIndivBox").hidden = !R.critIndiv.length;
+  if (R.critIndiv.length) (ev?.expositores || []).forEach(x => agregarExpositor(x.nombre, valoresPrevios(ev.critIndiv, x.valores, R.critIndiv)));
+  document.querySelectorAll(".missing,.invalid").forEach(e=>e.classList.remove("missing","invalid"));
+  $("avisoEdicion").hidden = !ev;
+  $("volverGrupos").textContent = ev ? "← Volver al panel" : "← Volver a grupos";
+  $("enviar").textContent = ev ? "Guardar cambios" : "Enviar evaluación";
+  actualizar(); mostrar("vRubrica");
+}
+$("volverGrupos").onclick = async () => {
+  if (edicion){ edicion = null; mostrar("vAdmin"); return; }
+  mostrar("vGrupos"); try{ await cargarGrupos(); }catch(e){ toast(mensajeError(e)); }
+};
+
+function agregarExpositor(nombre = "", valores = []){
+  const id = ++expoCount, box = document.createElement("div");
+  box.className = "expositor"; box.dataset.id = id;
+  box.innerHTML = `<div class="row"><div class="field"><label for="expo-${id}">Nombre del expositor <span class="req">*</span></label><input type="text" id="expo-${id}" autocomplete="off"></div>
+      <button class="btn ghost danger" type="button" data-quitar>Quitar</button></div>
+    <div class="grid-scroll"><table class="grid"></table></div>
+    <div class="subtotal">Subtotal individual <b data-sub>0</b></div>`;
+  box.querySelector("input").value = nombre;
+  construirGrid(box.querySelector("table"), `ind${id}`, R.critIndiv, R.escalaIndiv, valores);
+  box.querySelector("[data-quitar]").onclick = () => { box.remove(); actualizar(); };
+  $("expositores").appendChild(box); actualizar();
+  if (!nombre) box.querySelector("input").focus();
+}
+$("addExpo").onclick = () => agregarExpositor();
+
+function recolectar(){
+  const grupal = leerGrid("grp", R.critGrupal.length);
+  const expos = [...document.querySelectorAll(".expositor")].map(b => {
+    const valores = leerGrid(`ind${b.dataset.id}`, R.critIndiv.length);
+    return {nombre: b.querySelector("input[type=text]").value.trim(), valores, total: sum(valores), completo: valores.every(v=>v!==null), box:b};
+  });
+  const gTotal = sum(grupal), gMax = maxGrupal(), iMax = maxIndiv();
+  const gFrac = gMax ? gTotal/gMax : 0;
+  const completos = expos.filter(e=>e.completo);
+  const iProm = completos.length && iMax ? completos.reduce((s,e)=>s+e.total,0)/completos.length : null;
+  const peso = R.pesoGrupal/100;
+  const frac = iProm !== null ? gFrac*peso + (iProm/iMax)*(1-peso) : gFrac;
+  return {grupal, gTotal, gMax, expos, iProm, iMax, final: Math.round(frac*R.notaMaxima*100)/100};
+}
+function nivel(nota, max){ const p = max ? nota/max*100 : 0; if (p>=90) return "Excelente"; if (p>=75) return "Bueno"; if (p>=60) return "En desarrollo"; if (p>0) return "Deficiente"; return "Sin calificar"; }
+
+function actualizar(){
+  const d = recolectar();
+  $("subGrupal").textContent = `${fmt(d.gTotal)} / ${fmt(d.gMax)}`;
+  $("mGrupal").textContent = `${fmt(d.gTotal)}/${fmt(d.gMax)}`;
+  $("mIndiv").textContent = d.iProm !== null ? `${fmt(d.iProm)}/${fmt(d.iMax)}` : "—";
+  $("mFinal").textContent = `${fmt(d.final)}/${fmt(R.notaMaxima)}`;
+  $("mNivel").textContent = nivel(d.final, R.notaMaxima);
+  d.expos.forEach(e => e.box.querySelector("[data-sub]").textContent = `${fmt(e.total)} / ${fmt(d.iMax)}`);
+  $("noExpo").hidden = d.expos.length > 0;
+  document.querySelectorAll("tr.missing").forEach(r => { if (r.querySelector("input:checked")) r.classList.remove("missing"); });
+  document.querySelectorAll("input.invalid").forEach(i => { if (i.value.trim()) i.classList.remove("invalid"); });
+}
+document.addEventListener("change", e => { if (e.target.type === "radio") actualizar(); });
+document.addEventListener("input", e => { if (e.target.matches("#vRubrica input[type=text]")) actualizar(); });
+
+function validar(d){
+  let primero = null;
+  const marca = el => { primero = primero || el; };
+  if (!$("rTema").value.trim()){ $("rTema").classList.add("invalid"); marca($("rTema")); }
+  d.grupal.forEach((v,i) => { if (v===null){ const r=document.querySelector(`tr[data-row="grp-${i}"]`); r.classList.add("missing"); marca(r); } });
+  d.expos.forEach(e => {
+    const inp = e.box.querySelector("input[type=text]");
+    if (!e.nombre){ inp.classList.add("invalid"); marca(inp); }
+    e.valores.forEach((v,i) => { if (v===null){ const r=e.box.querySelector(`tr[data-row="ind${e.box.dataset.id}-${i}"]`); r.classList.add("missing"); marca(r); } });
+  });
+  if (primero){ primero.scrollIntoView({behavior:"smooth", block:"center"}); toast("Faltan campos o criterios por calificar (marcados en rojo)."); return false; }
+  return true;
+}
+
+$("enviar").onclick = async () => {
+  const d = recolectar();
+  if (!validar(d)) return;
+  const registro = {
+    evaluador: $("rEvaluador").value, grupoId: grupoActual.id, grupo: grupoActual.nombre, tema: $("rTema").value.trim(),
+    critGrupal: R.critGrupal.map(c=>c.nombre), grupal: d.grupal, gTotal: d.gTotal, gMax: d.gMax,
+    critIndiv: R.critIndiv.map(c=>c.nombre), expositores: d.expos.map(e => ({nombre:e.nombre, valores:e.valores, total:e.total})), iMax: d.iMax,
+    iProm: d.iProm !== null ? Math.round(d.iProm*100)/100 : null,
+    notaMaxima: R.notaMaxima, pesoGrupal: R.pesoGrupal, final: d.final
+  };
+  if (edicion){
+    cargando($("enviar"), true, "Guardando…");
+    try{
+      await api.actualizarEval(edicion.id, registro);
+      toast(`Evaluación de ${grupoActual.nombre} actualizada.`);
+      edicion = null; mostrar("vAdmin"); await cargarAdmin();
+    }catch(err){ toast(mensajeError(err)); }
+    finally{ cargando($("enviar"), false); }
+    return;
+  }
+  cargando($("enviar"), true, "Enviando…");
+  try{
+    await api.enviarEval(registro);
+    marcarHecho(grupoActual.id);
+    toast(`Evaluación de ${grupoActual.nombre} enviada.`);
+    await cargarGrupos(); mostrar("vGrupos");
+  }catch(err){ toast(mensajeError(err)); }
+  finally{ cargando($("enviar"), false); }
+};
+
+/* ===================== ADMINISTRADOR ===================== */
+let evals = [];
+function pestana(id){
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.panel === id));
+  ["panelRes","panelGru","panelRub"].forEach(p => $(p).hidden = p !== id);
+}
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => pestana(t.dataset.panel));
+$("refrescar").onclick = () => cargarAdmin(true);
+
+async function cargarAdmin(aviso){
+  try{
+    [grupos, evals] = await Promise.all([api.grupos(), api.evaluaciones()]);
+    pintarStats(); pintarResumen(); pintarFiltro(); pintarEvals(); pintarGruposAdmin();
+    if (aviso) toast("Datos actualizados.");
+  }catch(err){ toast(mensajeError(err)); }
+}
+
+const fmtFecha = f => f ? new Date(f).toLocaleString("es-HN", {dateStyle:"medium", timeStyle:"short"}) : "—";
+const prom = a => a.length ? a.reduce((s,x)=>s+x,0)/a.length : null;
+const nombreGrupo = e => grupos.find(g => g.id === e.grupoId)?.nombre || e.grupo;
+// Las notas antiguas pueden tener otra nota máxima: se convierten a la escala actual
+const notaActual = e => (e.notaMaxima && e.notaMaxima !== R.notaMaxima) ? e.final / e.notaMaxima * R.notaMaxima : e.final;
+
+function pintarStats(){
+  $("stGrupos").textContent = grupos.length;
+  $("stEvals").textContent = evals.length;
+  $("stEvaluadores").textContent = new Set(evals.map(e => String(e.evaluador).toLowerCase())).size;
+  const p = prom(evals.map(notaActual));
+  $("stProm").textContent = p !== null ? `${fmt(p)}/${fmt(R.notaMaxima)}` : "—";
+}
+
+function pintarResumen(){
+  const nombres = new Map(grupos.map(g => [g.id, g.nombre]));
+  evals.forEach(e => { if (!nombres.has(e.grupoId)) nombres.set(e.grupoId, e.grupo + " (eliminado)"); });
+  const filas = [...nombres].map(([id, nombre]) => {
+    const notas = evals.filter(e => e.grupoId === id).map(notaActual);
+    return {nombre, n: notas.length, p: prom(notas), min: notas.length ? Math.min(...notas) : null, max: notas.length ? Math.max(...notas) : null};
+  }).sort(porNombre);
+  $("tablaResumen").innerHTML = `<thead><tr><th>Grupo</th><th>Evaluaciones</th><th>Nota promedio</th><th>Más baja</th><th>Más alta</th><th>Nivel</th></tr></thead><tbody>` +
+    (filas.length ? filas.map(f => `<tr><td>${esc(f.nombre)}</td><td class="num">${f.n}</td>
+      <td class="num"><b>${f.p!==null ? fmt(f.p)+"/"+fmt(R.notaMaxima) : "—"}</b></td>
+      <td class="num">${f.min!==null ? fmt(f.min) : "—"}</td><td class="num">${f.max!==null ? fmt(f.max) : "—"}</td>
+      <td>${f.p!==null ? `<span class="pill">${nivel(f.p, R.notaMaxima)}</span>` : "<small>Sin evaluar</small>"}</td></tr>`).join("")
+      : `<tr><td colspan="6"><small>No hay grupos ni evaluaciones.</small></td></tr>`) + "</tbody>";
+}
+
+function pintarFiltro(){
+  const sel = $("filtroGrupo"), actual = sel.value;
+  const ids = new Map(evals.map(e => [e.grupoId, e.grupo]));
+  grupos.forEach(g => ids.set(g.id, g.nombre));
+  sel.innerHTML = `<option value="">Todos los grupos</option>` + [...ids].map(([id,n]) => ({id, nombre:n})).sort(porNombre)
+    .map(g => `<option value="${esc(g.id)}">${esc(g.nombre)}</option>`).join("");
+  sel.value = ids.has(actual) ? actual : "";
+}
+$("filtroGrupo").onchange = () => pintarEvals();
+
+function detalle(e){
+  const nG = e.critGrupal || R.critGrupal.map(c=>c.nombre), nI = e.critIndiv || R.critIndiv.map(c=>c.nombre);
+  const L = [`Tema: ${e.tema}`, "", "EVALUACIÓN GRUPAL"];
+  nG.forEach((n,i) => L.push(`  ${n}: ${e.grupal?.[i] ?? "-"}`));
+  L.push(`  Subtotal: ${fmt(e.gTotal)}/${fmt(e.gMax ?? e.gTotal)}`, "", "CRITERIOS INDIVIDUALES");
+  if (!e.expositores?.length) L.push("  (No se evaluó individualmente)");
+  (e.expositores||[]).forEach(x => { L.push("  "+x.nombre); nI.forEach((n,i)=> L.push(`    ${n}: ${x.valores?.[i] ?? "-"}`)); L.push(`    Subtotal: ${fmt(x.total)}/${fmt(e.iMax ?? x.total)}`); });
+  const nm = e.notaMaxima || R.notaMaxima;
+  L.push("", `NOTA FINAL: ${fmt(e.final)}/${fmt(nm)} (${nivel(e.final, nm)})`);
+  if (e.pesoGrupal != null) L.push(e.iProm != null ? `Ponderación: grupal ${e.pesoGrupal} % + individual ${100-e.pesoGrupal} %` : "Ponderación: grupal 100 %");
+  return L.join("\n");
+}
+
+function pintarEvals(){
+  const f = $("filtroGrupo").value;
+  const lista = f ? evals.filter(e => e.grupoId === f) : evals;
+  $("totalEvals").textContent = f ? `${lista.length} de ${evals.length}` : `${evals.length} en total`;
+  $("listaEvals").innerHTML = lista.length ? lista.map(e => { const nm = e.notaMaxima || R.notaMaxima; return `<details class="eval"><summary>
+      <div class="who"><strong>${esc(nombreGrupo(e))}</strong><small>${esc(e.evaluador)} · ${fmtFecha(e.fecha)}${e.editado ? " · editada " + fmtFecha(e.editado) : ""}</small></div>
+      <span class="n">${fmt(e.final)}/${fmt(nm)}</span><span class="pill">${nivel(e.final, nm)}</span></summary>
+      <pre>${esc(detalle(e))}</pre>
+      <div class="actions"><button class="btn sm primary" type="button" data-editar="${esc(e.id)}">Editar evaluación</button>
+        <span class="inline-confirm" data-acc="${esc(e.id)}"><button class="btn sm danger" type="button" data-pedir>Eliminar evaluación</button></span></div>
+    </details>`; }).join("") : `<p class="empty">Aún no se han recibido evaluaciones.</p>`;
+  $("listaEvals").querySelectorAll("[data-editar]").forEach(b => b.onclick = () => {
+    const ev = evals.find(x => x.id === b.dataset.editar);
+    const g = grupos.find(x => x.id === ev.grupoId) || {id: ev.grupoId, nombre: ev.grupo, tema: ev.tema};
+    abrirRubrica(g, ev);
+  });
+  $("listaEvals").querySelectorAll("[data-acc]").forEach(span => confirmarEn(span, "¿Eliminar esta evaluación?", async () => { await api.borrarEval(span.dataset.acc); toast("Evaluación eliminada."); cargarAdmin(); }));
+}
+
+function pintarGruposAdmin(){
+  $("adminSinGrupos").hidden = grupos.length > 0;
+  $("adminGrupos").innerHTML = grupos.map(g => `<li data-li="${esc(g.id)}"><div class="who"><strong>${esc(g.nombre)}</strong><small>${esc(g.tema || "Sin tema")}</small></div>
+      <span class="pill">${evals.filter(e=>e.grupoId===g.id).length} eval.</span>
+      <button class="btn sm" type="button" data-edit-g="${esc(g.id)}">Editar</button>
+      <span class="inline-confirm" data-acc="${esc(g.id)}"><button class="btn sm danger" type="button" data-pedir>Eliminar</button></span></li>`).join("");
+  $("adminGrupos").querySelectorAll("[data-edit-g]").forEach(b => b.onclick = () => editarGrupo(b.dataset.editG));
+  $("adminGrupos").querySelectorAll("[data-acc]").forEach(span => confirmarEn(span, "¿Eliminar grupo?", async () => { await api.borrarGrupo(span.dataset.acc); toast("Grupo eliminado. Sus evaluaciones se conservan."); cargarAdmin(); }));
+}
+
+function editarGrupo(id){
+  const g = grupos.find(x => x.id === id), li = document.querySelector(`[data-li="${CSS.escape(id)}"]`);
+  li.innerHTML = `<form class="row" novalidate>
+      <div class="field"><label for="eg-n-${esc(id)}">Número o nombre del equipo <span class="req">*</span></label><input type="text" id="eg-n-${esc(id)}" autocomplete="off"></div>
+      <div class="field"><label for="eg-t-${esc(id)}">Tema de la exposición</label><input type="text" id="eg-t-${esc(id)}" autocomplete="off"></div>
+      <div class="actions"><button class="btn primary sm" type="submit">Guardar</button><button class="btn ghost sm" type="button" data-cancelar>Cancelar</button></div>
+    </form>`;
+  const [inN, inT] = li.querySelectorAll("input");
+  inN.value = g.nombre; inT.value = g.tema || ""; inN.focus();
+  li.querySelector("[data-cancelar]").onclick = () => pintarGruposAdmin();
+  li.querySelector("form").onsubmit = async e => {
+    e.preventDefault();
+    const nombre = inN.value.trim(), tema = inT.value.trim();
+    if (!nombre){ inN.classList.add("invalid"); toast("El nombre del equipo no puede quedar vacío."); return; }
+    if (grupos.some(x => x.id !== id && x.nombre.toLowerCase() === nombre.toLowerCase())){ inN.classList.add("invalid"); toast(`Ya existe un grupo llamado ${nombre}.`); return; }
+    const btn = li.querySelector("[type=submit]"); cargando(btn, true, "Guardando…");
+    try{ await api.actualizarGrupo(id, {nombre, tema}); toast(`${nombre} actualizado.`); await cargarAdmin(); }
+    catch(err){ toast(mensajeError(err)); cargando(btn, false); }
+  };
+}
+
+function confirmarEn(span, pregunta, accion){
+  const original = span.innerHTML;
+  span.querySelector("[data-pedir]").onclick = () => {
+    span.innerHTML = `<span>${pregunta}</span><button class="btn sm danger" type="button" data-si>Sí, eliminar</button><button class="btn sm ghost" type="button" data-no>Cancelar</button>`;
+    span.querySelector("[data-no]").onclick = () => { span.innerHTML = original; confirmarEn(span, pregunta, accion); };
+    span.querySelector("[data-si]").onclick = async () => { try{ await accion(); }catch(err){ toast(mensajeError(err)); } };
+  };
+}
+
+$("formGrupo").onsubmit = async e => {
+  e.preventDefault();
+  const nombre = $("gNombre").value.trim(), tema = $("gTema").value.trim();
+  if (!nombre){ $("gNombre").classList.add("invalid"); $("gNombre").focus(); toast("Escriba el número o nombre del equipo."); return; }
+  if (grupos.some(g => g.nombre.toLowerCase() === nombre.toLowerCase())){ toast(`Ya existe un grupo llamado ${nombre}.`); return; }
+  cargando($("gGuardar"), true, "Agregando…");
+  try{ await api.agregarGrupo({nombre, tema}); $("gNombre").value = ""; $("gTema").value = ""; toast(`${nombre} agregado.`); await cargarAdmin(); $("gNombre").focus(); }
+  catch(err){ toast(mensajeError(err)); }
+  finally{ cargando($("gGuardar"), false); }
+};
+
+$("copiarCsv").onclick = async () => {
+  const q = s => `"${String(s ?? "").replace(/"/g,'""')}"`;
+  const head = ["Fecha","Grupo","Tema","Evaluador","Calificaciones grupales","Subtotal grupal","Expositores","Promedio individual","Nota final","Nota máxima","Nivel"];
+  const filas = evals.map(e => {
+    const nG = e.critGrupal || R.critGrupal.map(c=>c.nombre), nm = e.notaMaxima || R.notaMaxima;
+    return [fmtFecha(e.fecha), nombreGrupo(e), e.tema, e.evaluador, nG.map((n,i)=>`${n}: ${e.grupal?.[i] ?? "-"}`).join("; "),
+      `${e.gTotal}/${e.gMax ?? ""}`, (e.expositores||[]).map(x=>`${x.nombre} (${x.total}/${e.iMax ?? ""})`).join("; "),
+      e.iProm ?? "", e.final, nm, nivel(e.final, nm)];
+  });
+  const csv = [head, ...filas].map(r => r.map(q).join(",")).join("\n");
+  try{ await navigator.clipboard.writeText(csv); toast("CSV copiado. Péguelo en Excel u hojas de cálculo."); }
+  catch{ toast("No se pudo copiar automáticamente en este navegador."); }
+};
+
+/* ===================== EDITOR DE RÚBRICA ===================== */
+const LISTAS = {edEscG:"escalaGrupal", edEscI:"escalaIndiv", edCritG:"critGrupal", edCritI:"critIndiv"};
+let rbSucio = false;
+
+function filaEscala(e){
+  return `<div class="fila-escala"><input type="number" class="e-valor" step="0.5" value="${esc(e.valor)}" aria-label="Puntos del nivel">
+    <input type="text" class="e-etiqueta" value="${esc(e.etiqueta)}" aria-label="Nombre del nivel" placeholder="Ej.: Excelente">
+    <button class="btn icono ghost danger" type="button" data-del aria-label="Quitar nivel">Quitar</button></div>`;
+}
+function filaCrit(c, i, total){
+  return `<div class="fila-crit"><span class="num">${i+1}</span>
+    <div class="campos"><input type="text" class="c-nombre" value="${esc(c.nombre)}" aria-label="Nombre del criterio" placeholder="Nombre del criterio">
+      <input type="text" class="c-desc" value="${esc(c.desc)}" aria-label="Descripción del criterio" placeholder="Descripción (opcional)"></div>
+    <div class="mini"><button class="btn icono" type="button" data-up aria-label="Subir criterio" ${i===0?"disabled":""}>↑</button>
+      <button class="btn icono" type="button" data-down aria-label="Bajar criterio" ${i===total-1?"disabled":""}>↓</button>
+      <button class="btn icono ghost danger" type="button" data-del aria-label="Quitar criterio">Quitar</button></div></div>`;
+}
+function pintarEditor(r){
+  $("rbNotaMax").value = r.notaMaxima; $("rbPeso").value = r.pesoGrupal;
+  $("edEscG").innerHTML = r.escalaGrupal.map(filaEscala).join("");
+  $("edEscI").innerHTML = r.escalaIndiv.map(filaEscala).join("");
+  $("edCritG").innerHTML = r.critGrupal.map((c,i)=>filaCrit(c,i,r.critGrupal.length)).join("");
+  $("edCritI").innerHTML = r.critIndiv.length ? r.critIndiv.map((c,i)=>filaCrit(c,i,r.critIndiv.length)).join("") : `<p class="empty">Sin criterios individuales.</p>`;
+  resumenEditor();
+}
+function leerEditor(){
+  const esc_ = id => [...$(id).querySelectorAll(".fila-escala")].map(f => ({valor: parseFloat(f.querySelector(".e-valor").value), etiqueta: f.querySelector(".e-etiqueta").value.trim()}));
+  const crit = id => [...$(id).querySelectorAll(".fila-crit")].map(f => ({nombre: f.querySelector(".c-nombre").value.trim(), desc: f.querySelector(".c-desc").value.trim()}));
+  return {notaMaxima: parseFloat($("rbNotaMax").value), pesoGrupal: parseFloat($("rbPeso").value),
+    escalaGrupal: esc_("edEscG"), critGrupal: crit("edCritG"), escalaIndiv: esc_("edEscI"), critIndiv: crit("edCritI")};
+}
+function resumenEditor(){
+  const r = leerEditor(), mx = esc => { const v = esc.map(e=>e.valor).filter(Number.isFinite); return v.length ? Math.max(...v) : 0; };
+  const p = Number.isFinite(r.pesoGrupal) ? r.pesoGrupal : 0;
+  $("rbPesoHint").textContent = r.critIndiv.length ? `Evaluación individual: ${fmt(100 - p)} %` : "Sin criterios individuales: la parte grupal vale el 100 %";
+  $("rbMaxG").textContent = `Máximo ${fmt(mx(r.escalaGrupal) * r.critGrupal.length)} puntos`;
+  $("rbMaxI").textContent = r.critIndiv.length ? `Máximo ${fmt(mx(r.escalaIndiv) * r.critIndiv.length)} puntos por expositor` : "Desactivada";
+  $("rbEstado").textContent = rbSucio ? "Cambios sin guardar" : "Sin cambios";
+}
+function marcarSucio(){ rbSucio = true; resumenEditor(); }
+$("panelRub").addEventListener("input", marcarSucio);
+
+$("panelRub").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const contenedor = b.closest("#edEscG,#edEscI,#edCritG,#edCritI");
+  const r = leerEditor();
+  if (b.dataset.add){
+    const k = LISTAS[b.dataset.add];
+    if (k.startsWith("escala")){ const vals = r[k].map(x=>x.valor).filter(Number.isFinite); r[k].push({valor: vals.length ? Math.max(0, Math.min(...vals)-1) : 0, etiqueta:""}); }
+    else r[k].push({nombre:"", desc:""});
+  } else if (contenedor){
+    const k = LISTAS[contenedor.id], filas = [...contenedor.children], i = filas.indexOf(b.closest(".fila-escala,.fila-crit"));
+    if (b.hasAttribute("data-del")){
+      if (k.startsWith("escala") && r[k].length <= 2){ toast("La escala necesita al menos dos niveles."); return; }
+      if (k === "critGrupal" && r[k].length <= 1){ toast("La evaluación grupal necesita al menos un criterio."); return; }
+      r[k].splice(i,1);
+    } else if (b.hasAttribute("data-up") && i > 0) [r[k][i-1], r[k][i]] = [r[k][i], r[k][i-1]];
+    else if (b.hasAttribute("data-down") && i < r[k].length-1) [r[k][i+1], r[k][i]] = [r[k][i], r[k][i+1]];
+    else return;
+  } else return;
+  rbSucio = true; pintarEditor(r);
+  if (b.dataset.add){ const ult = $(b.dataset.add).lastElementChild?.querySelector("input[type=text]"); ult?.focus(); }
+});
+
+function validarRubrica(r){
+  if (!(r.notaMaxima > 0)) return "La nota máxima debe ser mayor que cero.";
+  if (!(r.pesoGrupal >= 0 && r.pesoGrupal <= 100)) return "El peso grupal debe estar entre 0 y 100 %.";
+  for (const [k, nombre] of [["escalaGrupal","grupal"],["escalaIndiv","individual"]]){
+    const e = r[k];
+    if (e.length < 2) return `La escala ${nombre} necesita al menos dos niveles.`;
+    if (e.some(x => !Number.isFinite(x.valor) || x.valor < 0)) return `Todos los niveles de la escala ${nombre} necesitan puntos (0 o más).`;
+    if (e.some(x => !x.etiqueta)) return `Todos los niveles de la escala ${nombre} necesitan un nombre.`;
+    if (new Set(e.map(x=>x.valor)).size !== e.length) return `En la escala ${nombre} hay dos niveles con los mismos puntos.`;
+    if (Math.max(...e.map(x=>x.valor)) <= 0) return `La escala ${nombre} necesita al menos un nivel con puntos mayores que cero.`;
+  }
+  for (const [k, nombre] of [["critGrupal","grupales"],["critIndiv","individuales"]]){
+    const c = r[k];
+    if (c.some(x => !x.nombre)) return `Hay criterios ${nombre} sin nombre.`;
+    if (new Set(c.map(x=>x.nombre.toLowerCase())).size !== c.length) return `Hay criterios ${nombre} con el mismo nombre.`;
+  }
+  if (!r.critGrupal.length) return "La evaluación grupal necesita al menos un criterio.";
+  return null;
+}
+
+$("rbGuardar").onclick = async () => {
+  const r = leerEditor(), err = validarRubrica(r);
+  if (err){ toast(err); return; }
+  const limpio = normalizar(r);
+  cargando($("rbGuardar"), true, "Guardando…");
+  try{ await api.guardarRubrica(limpio); R = limpio; rbSucio = false; pintarEditor(R); pintarStats(); pintarResumen(); pintarEvals(); toast("Rúbrica guardada. Se aplicará a las próximas evaluaciones."); }
+  catch(e){ toast(mensajeError(e)); }
+  finally{ cargando($("rbGuardar"), false); }
+};
+$("rbDescartar").onclick = () => { rbSucio = false; pintarEditor(R); toast("Cambios descartados."); };
+(function restaurar(){
+  const box = $("rbRestaurarBox"), original = box.innerHTML;
+  const enlazar = () => box.querySelector("#rbRestaurar").onclick = () => {
+    box.innerHTML = `<span>¿Cargar la rúbrica original?</span><button class="btn sm" type="button" data-si>Sí, cargar</button><button class="btn sm ghost" type="button" data-no>Cancelar</button>`;
+    box.querySelector("[data-no]").onclick = () => { box.innerHTML = original; enlazar(); };
+    box.querySelector("[data-si]").onclick = () => { box.innerHTML = original; enlazar(); rbSucio = true; pintarEditor(copia(RUBRICA_BASE)); toast("Rúbrica original cargada. Pulse “Guardar rúbrica” para aplicarla."); };
+  };
+  enlazar();
+})();
+
+/* ===================== ARRANQUE ===================== */
+iniciarBackend().then(() => mostrar("vInicio")).catch(err => { mostrar("vInicio"); toast("No se pudo conectar con Firebase: " + (err?.message || err)); });
+</script>
+</body>
+</html>
