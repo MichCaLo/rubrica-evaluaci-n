@@ -394,15 +394,13 @@ details.eval pre{white-space:pre-wrap;font-family:var(--font-mono);font-size:.82
 <div class="toast" id="toast" hidden role="status"></div>
 
 <script>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+/* =====================================================================
+   CONFIGURACIÓN DE FIREBASE
+   1. Pegue aquí los datos de su app web (Consola de Firebase → Configuración del proyecto).
+   2. Escriba el correo del usuario administrador creado en Authentication.
+   Mientras apiKey diga "TU_API_KEY", la app funciona en modo demostración.
+   ===================================================================== */
+const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCEpou1jtgW5TVUPsa2nsCG05h4zhsP3t8",
   authDomain: "rubrica-evaluacion-ba79d.firebaseapp.com",
   projectId: "rubrica-evaluacion-ba79d",
@@ -411,15 +409,12 @@ const firebaseConfig = {
   appId: "1:796168448898:web:75b48e60d634d7129a7d9b",
   measurementId: "G-09H0WW6K7L"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
+// IMPORTANTE: no pegue aquí las líneas "import ..." ni "initializeApp(...)" que muestra la consola de Firebase;
+// esta página carga Firebase por su cuenta. Solo reemplace los valores de arriba.
 const ADMIN_EMAIL = "admin@tudominio.com";
 const FIREBASE_VERSION = "10.12.2";
 
-const DEMO = firebaseConfig.apiKey === "TU_API_KEY";
+const DEMO = FIREBASE_CONFIG.apiKey === "TU_API_KEY";
 const DEMO_PASS = "admin123";
 
 /* ===================== RÚBRICA PREDETERMINADA =====================
