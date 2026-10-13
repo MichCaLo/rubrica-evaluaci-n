@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Rúbrica de Exposición</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
@@ -173,6 +173,62 @@ details.eval pre{white-space:pre-wrap;font-family:var(--font-mono);font-size:.82
 .barra-guardar{position:sticky;bottom:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;z-index:2}
 .barra-guardar .estado{margin-right:auto;font-size:.92rem;color:var(--muted)}
 .inline-confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* ===== Responsivo ===== */
+.cell span em{display:none}
+@media (pointer:coarse){ .btn{min-height:44px} .tab{min-height:44px} }
+@media (min-width:1200px){ .wrap,.scorebar-in{max-width:1040px} }
+@media (min-width:701px){ .wrap{padding-inline:24px} }
+
+/* Tablet: tabla compacta */
+@media (max-width:900px){
+  .grid td.crit{width:40%}
+  .cell span{min-width:36px;height:36px}
+}
+
+/* Celular: cada criterio es una tarjeta con botones grandes */
+@media (max-width:700px){
+  .grid-scroll{overflow:visible;margin-inline:0}
+  table.grid{min-width:0}
+  .grid thead{display:none}
+  .grid,.grid tbody{display:block;width:100%}
+  .grid tr{display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:8px;padding:14px 0;border-bottom:1px solid var(--line)}
+  .grid td{display:block;border:none;padding:0}
+  .grid td.crit{grid-column:1/-1;width:auto;padding-bottom:4px}
+  .cell label{display:flex;width:100%}
+  .cell span{width:100%;min-width:0;height:auto;min-height:58px;border-radius:8px;padding:6px 4px;display:flex;flex-direction:column;justify-content:center;gap:2px;text-align:center}
+  .cell span em{display:block;font-style:normal;font-family:var(--font-body);font-size:.7rem;font-weight:600;line-height:1.15;overflow-wrap:anywhere}
+  .expositor{padding:12px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat b{font-size:1.25rem}
+  .wrap.con-barra{padding-block-end:210px}
+  .scorebar-in{gap:8px 16px}
+  .metric b{font-size:1.05rem}
+  .scorebar .actions{margin-left:0;width:100%}
+  .scorebar .actions .btn{width:100%}
+  .encabezado > .btn{width:100%}
+  .progreso{min-width:0;width:100%}
+  .sec-head .tag{margin-left:0;width:100%}
+  .barra-guardar{flex-direction:column;align-items:stretch}
+  .barra-guardar .btn{width:100%}
+  .barra-guardar .estado{margin-right:0}
+}
+
+/* Celular: tablas del panel como fichas */
+@media (max-width:600px){
+  table.datos thead{display:none}
+  table.datos,table.datos tbody{display:block}
+  table.datos tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  table.datos td{border:none;padding:0}
+  table.datos td::before{content:attr(data-label);display:block;font-family:var(--font-body);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+  table.datos td:first-child{grid-column:1/-1;font-weight:700;font-size:1.05rem}
+  table.datos td:first-child::before,table.datos td[colspan]::before{display:none}
+  table.datos td[colspan]{grid-column:1/-1}
+  .lista li .btn,.lista li .inline-confirm{flex:1 1 auto}
+  details.eval .actions .btn{flex:1 1 auto}
+  h1{font-size:1.65rem}
+  .rol{padding:18px}
+}
 
 .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:6px;font-weight:600;z-index:10;max-width:calc(100% - 32px)}
 @media (max-width:560px){section.card{padding:18px}.fila-crit{grid-template-columns:minmax(0,1fr)}.fila-crit .num{padding-top:0}.fila-crit .mini{justify-content:flex-start}}
@@ -534,6 +590,7 @@ function mensajeError(e){
   if (/wrong-password|invalid-credential|invalid-login|user-not-found/.test(c)) return "Contraseña incorrecta. Verifique e intente de nuevo.";
   if (/too-many-requests/.test(c)) return "Demasiados intentos. Espere unos minutos e intente de nuevo.";
   if (/permission-denied/.test(c)) return "No tiene permiso para esta acción. Revise las reglas de Firestore.";
+  if (/configuration-not-found/.test(c)) return "Firebase Authentication no está activado en este proyecto. En la consola de Firebase abra Authentication, pulse «Comenzar» y habilite Correo electrónico/contraseña y Anónimo.";
   if (/admin-restricted-operation|operation-not-allowed/.test(c)) return "Active el acceso anónimo en Firebase Authentication.";
   if (/network|unavailable/.test(c)) return "Sin conexión con Firebase. Revise su internet.";
   return "Ocurrió un error: " + (e?.message || c || "desconocido");
@@ -607,10 +664,11 @@ async function cargarGrupos(){
 let grupoActual = null, expoCount = 0, edicion = null;
 
 function construirGrid(table, prefijo, criterios, escala, valores = []){
+  table.style.setProperty("--n", escala.length);
   table.innerHTML = "<thead><tr><th scope='col'>Criterio</th>" + escala.map(e=>`<th scope='col'><b>${fmt(e.valor)}</b>${esc(e.etiqueta)}</th>`).join("") + "</tr></thead><tbody>" +
     criterios.map((c,i)=>{ const name = `${prefijo}-${i}`;
       return `<tr data-row="${name}"><td class="crit"><strong>${i+1}. ${esc(c.nombre)}</strong>${c.desc ? `<small>${esc(c.desc)}</small>` : ""}</td>` +
-        escala.map(e=>`<td class="cell"><label title="${fmt(e.valor)} - ${esc(e.etiqueta)}"><input type="radio" name="${name}" value="${e.valor}" aria-label="${esc(c.nombre)}: ${fmt(e.valor)} - ${esc(e.etiqueta)}" ${valores[i]===e.valor ? "checked" : ""}><span class="${claseNivel(e.valor, escala)}">${fmt(e.valor)}</span></label></td>`).join("") + "</tr>";
+        escala.map(e=>`<td class="cell"><label title="${fmt(e.valor)} - ${esc(e.etiqueta)}"><input type="radio" name="${name}" value="${e.valor}" aria-label="${esc(c.nombre)}: ${fmt(e.valor)} - ${esc(e.etiqueta)}" ${valores[i]===e.valor ? "checked" : ""}><span class="${claseNivel(e.valor, escala)}">${fmt(e.valor)}<em>${esc(e.etiqueta)}</em></span></label></td>`).join("") + "</tr>";
     }).join("") + "</tbody>";
 }
 function leerGrid(prefijo, n){ const out=[]; for (let i=0;i<n;i++){ const c=document.querySelector(`input[name="${prefijo}-${i}"]:checked`); out.push(c ? +c.value : null); } return out; }
@@ -773,10 +831,10 @@ function pintarResumen(){
     return {nombre, n: notas.length, p: prom(notas), min: notas.length ? Math.min(...notas) : null, max: notas.length ? Math.max(...notas) : null};
   }).sort(porNombre);
   $("tablaResumen").innerHTML = `<thead><tr><th>Grupo</th><th>Evaluaciones</th><th>Nota promedio</th><th>Más baja</th><th>Más alta</th><th>Nivel</th></tr></thead><tbody>` +
-    (filas.length ? filas.map(f => `<tr><td>${esc(f.nombre)}</td><td class="num">${f.n}</td>
-      <td class="num"><b>${f.p!==null ? fmt(f.p)+"/"+fmt(R.notaMaxima) : "—"}</b></td>
-      <td class="num">${f.min!==null ? fmt(f.min) : "—"}</td><td class="num">${f.max!==null ? fmt(f.max) : "—"}</td>
-      <td>${f.p!==null ? `<span class="pill">${nivel(f.p, R.notaMaxima)}</span>` : "<small>Sin evaluar</small>"}</td></tr>`).join("")
+    (filas.length ? filas.map(f => `<tr><td data-label="Grupo">${esc(f.nombre)}</td><td class="num" data-label="Evaluaciones">${f.n}</td>
+      <td class="num" data-label="Nota promedio"><b>${f.p!==null ? fmt(f.p)+"/"+fmt(R.notaMaxima) : "—"}</b></td>
+      <td class="num" data-label="Más baja">${f.min!==null ? fmt(f.min) : "—"}</td><td class="num" data-label="Más alta">${f.max!==null ? fmt(f.max) : "—"}</td>
+      <td data-label="Nivel">${f.p!==null ? `<span class="pill">${nivel(f.p, R.notaMaxima)}</span>` : "<small>Sin evaluar</small>"}</td></tr>`).join("")
       : `<tr><td colspan="6"><small>No hay grupos ni evaluaciones.</small></td></tr>`) + "</tbody>";
 }
 
